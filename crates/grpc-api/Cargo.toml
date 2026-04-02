@@ -1,0 +1,23 @@
+[package]
+name = "grpc-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+tokio.workspace = true
+tonic = "0.12"
+prost = "0.13"
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+distributed-runtime = { path = "../distributed-runtime" }
+sandbox = { path = "../sandbox" }
+metrics = { path = "../metrics" }
+
+[build-dependencies]
+tonic-build = "0.12"
+
+[lints]
+workspace = true

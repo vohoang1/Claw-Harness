@@ -1,0 +1,136 @@
+// Claw-Harness gRPC Service Definition
+
+syntax = "proto3";
+package claw.v1;
+
+// Run service
+service ClawService {
+    // Run a prompt and get response
+    rpc Run(RunRequest) returns (RunResponse);
+    
+    // Create a new session
+    rpc CreateSession(CreateSessionRequest) returns (Session);
+    
+    // Get session by ID
+    rpc GetSession(GetSessionRequest) returns (Session);
+    
+    // List available tools
+    rpc ListTools(ListToolsRequest) returns (ListToolsResponse);
+    
+    // Get job status
+    rpc GetJob(GetJobRequest) returns (Job);
+    
+    // Stream response tokens
+    rpc RunStream(RunRequest) returns (stream StreamResponse);
+    
+    // Health check
+    rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Messages
+
+message RunRequest {
+    string prompt = 1;
+    repeated string tools = 2;
+    optional string session_id = 3;
+    optional ModelConfig model = 4;
+}
+
+message RunResponse {
+    string result = 1;
+    string session_id = 2;
+    Usage usage = 3;
+    int64 latency_ms = 4;
+}
+
+message StreamResponse {
+    oneof response {
+        string token = 1;
+        ToolCall tool_call = 2;
+        Usage final_usage = 3;
+    }
+}
+
+message CreateSessionRequest {
+    optional string metadata = 1;
+}
+
+message GetSessionRequest {
+    string session_id = 1;
+}
+
+message ListToolsRequest {}
+
+message ListToolsResponse {
+    repeated ToolDefinition tools = 1;
+}
+
+message GetJobRequest {
+    string job_id = 1;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool healthy = 1;
+    string version = 2;
+    int64 uptime_seconds = 3;
+}
+
+// Supporting types
+
+message Session {
+    string id = 1;
+    string created_at = 2;
+    string updated_at = 3;
+    repeated Message messages = 4;
+    map<string, string> metadata = 5;
+}
+
+message Message {
+    string role = 1;  // user, assistant, system
+    string content = 2;
+    int64 timestamp = 3;
+}
+
+message ToolDefinition {
+    string name = 1;
+    string description = 2;
+    repeated Parameter input_schema = 3;
+    repeated Parameter output_schema = 4;
+}
+
+message Parameter {
+    string name = 1;
+    string type = 2;
+    string description = 3;
+    bool required = 4;
+}
+
+message ToolCall {
+    string name = 1;
+    string arguments = 2;
+    string call_id = 3;
+}
+
+message Job {
+    string id = 1;
+    string session_id = 2;
+    string prompt = 3;
+    string state = 4;
+    optional string result = 5;
+    optional string error = 6;
+    int64 created_at = 7;
+}
+
+message Usage {
+    int64 prompt_tokens = 1;
+    int64 completion_tokens = 2;
+    int64 total_tokens = 3;
+}
+
+message ModelConfig {
+    string model = 1;
+    optional float temperature = 2;
+    optional int32 max_tokens = 3;
+}
