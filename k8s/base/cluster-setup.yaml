@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: claw-system
+  labels:
+    app.kubernetes.io/name: claw-system
+    app.kubernetes.io/component: infrastructure
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: claw-config
+  namespace: claw-system
+data:
+  CLAW_NODE_ID: "claw-harness"
+  CLAW_NATS_URL: "nats://nats.claw-system.svc.cluster.local:4222"
+  CLAW_TIKV_PD: "pd.claw-system.svc.cluster.local:2379"
+  RUST_LOG: "info"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: claw-secrets
+  namespace: claw-system
+type: Opaque
+stringData:
+  ANTHROPIC_API_KEY: ""  # Set via kubectl create secret or external-secrets
+  OPENAI_API_KEY: ""
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: claw-harness
+  namespace: claw-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: claw-harness
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["statefulsets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: claw-harness
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: claw-harness
+subjects:
+- kind: ServiceAccount
+  name: claw-harness
+  namespace: claw-system
