@@ -15,11 +15,13 @@ use tokio::sync::{oneshot, Mutex};
 use crate::error::LspError;
 use crate::types::{LspServerConfig, SymbolLocation};
 
+type PendingRequests = BTreeMap<i64, oneshot::Sender<Result<Value, LspError>>>;
+
 pub(crate) struct LspClient {
     config: LspServerConfig,
     writer: Mutex<BufWriter<ChildStdin>>,
     child: Mutex<Child>,
-    pending_requests: Arc<Mutex<BTreeMap<i64, oneshot::Sender<Result<Value, LspError>>>>>,
+    pending_requests: Arc<Mutex<PendingRequests>>,
     diagnostics: Arc<Mutex<BTreeMap<String, Vec<Diagnostic>>>>,
     open_documents: Mutex<BTreeMap<PathBuf, i32>>,
     next_request_id: AtomicI64,
@@ -282,8 +284,8 @@ impl LspClient {
             if let Err(error) = result {
                 let mut pending = pending_requests.lock().await;
                 let drained = pending
-                    .iter()
-                    .map(|(id, _)| *id)
+                    .keys()
+                    .copied()
                     .collect::<Vec<_>>();
                 for id in drained {
                     if let Some(sender) = pending.remove(&id) {
@@ -294,6 +296,7 @@ impl LspClient {
         });
     }
 
+    #[allow(clippy::unused_self)]
     fn spawn_stderr_drain<R>(&self, stderr: R)
     where
         R: AsyncRead + Unpin + Send + 'static,

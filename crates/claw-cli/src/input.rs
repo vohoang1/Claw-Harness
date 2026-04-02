@@ -1,3 +1,12 @@
+#![allow(
+    clippy::match_same_arms,
+    clippy::unused_self,
+    clippy::single_match_else,
+    clippy::cast_possible_wrap,
+    clippy::cast_sign_loss,
+    clippy::explicit_counter_loop
+)]
+
 use std::borrow::Cow;
 use std::io::{self, IsTerminal, Write};
 
@@ -372,20 +381,20 @@ impl LineEditor {
 
         if key.modifiers.contains(KeyModifiers::CONTROL) {
             match key.code {
-                KeyCode::Char('c') | KeyCode::Char('C') => {
+                KeyCode::Char('c' | 'C') => {
                     return if session.has_input() {
                         KeyAction::Cancel
                     } else {
                         KeyAction::Exit
                     };
                 }
-                KeyCode::Char('j') | KeyCode::Char('J') => {
+                KeyCode::Char('j' | 'J') => {
                     if session.mode != EditorMode::Normal && session.mode != EditorMode::Visual {
                         self.insert_active_text(session, "\n");
                     }
                     return KeyAction::Continue;
                 }
-                KeyCode::Char('d') | KeyCode::Char('D') => {
+                KeyCode::Char('d' | 'D') => {
                     if session.current_len() == 0 {
                         return KeyAction::Exit;
                     }

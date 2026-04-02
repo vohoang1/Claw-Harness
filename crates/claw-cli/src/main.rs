@@ -1237,6 +1237,7 @@ impl LiveCli {
         Ok(())
     }
 
+    #[allow(clippy::too_many_lines)]
     fn handle_repl_command(
         &mut self,
         command: SlashCommand,
@@ -2988,7 +2989,7 @@ fn build_runtime(
         CliToolExecutor::new(allowed_tools.clone(), emit_output, tool_registry.clone()),
         permission_policy(permission_mode, &tool_registry),
         system_prompt,
-        feature_config,
+        &feature_config,
     ))
 }
 
@@ -3956,6 +3957,7 @@ fn convert_messages(messages: &[ConversationMessage]) -> Vec<InputMessage> {
         .collect()
 }
 
+#[allow(clippy::too_many_lines)]
 fn print_help_to(out: &mut impl Write) -> io::Result<()> {
     writeln!(out, "Claw Code CLI v{VERSION}")?;
     writeln!(

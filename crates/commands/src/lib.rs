@@ -603,7 +603,7 @@ pub fn suggest_slash_commands(input: &str, limit: usize) -> Vec<String> {
         })
         .collect::<Vec<_>>();
 
-    ranked.sort_by(|left, right| left.cmp(right));
+    ranked.sort();
     ranked.dedup_by(|left, right| left.2 == right.2);
     ranked
         .into_iter()
@@ -842,7 +842,7 @@ pub fn handle_branch_slash_command(
             Ok(if trimmed.is_empty() {
                 "Branch\n  Result           no branches found".to_string()
             } else {
-                format!("Branch\n  Result           listed\n\n{}", trimmed)
+                format!("Branch\n  Result           listed\n\n{trimmed}")
             })
         }
         Some("create") => {
@@ -882,7 +882,7 @@ pub fn handle_worktree_slash_command(
             Ok(if trimmed.is_empty() {
                 "Worktree\n  Result           no worktrees found".to_string()
             } else {
-                format!("Worktree\n  Result           listed\n\n{}", trimmed)
+                format!("Worktree\n  Result           listed\n\n{trimmed}")
             })
         }
         Some("add") => {
@@ -1790,17 +1790,14 @@ pub fn handle_slash_command(
 #[cfg(test)]
 mod tests {
     use super::{
-        handle_branch_slash_command, handle_commit_push_pr_slash_command,
-        handle_commit_slash_command, handle_plugins_slash_command, handle_slash_command,
-        handle_worktree_slash_command, load_agents_from_roots, load_skills_from_roots,
-        render_agents_report, render_plugins_report, render_skills_report,
+        handle_branch_slash_command, handle_commit_slash_command, handle_plugins_slash_command,
+        handle_slash_command, handle_worktree_slash_command, load_agents_from_roots,
+        load_skills_from_roots, render_agents_report, render_plugins_report, render_skills_report,
         render_slash_command_help, resume_supported_slash_commands, slash_command_specs,
-        suggest_slash_commands, CommitPushPrRequest, DefinitionSource, SkillOrigin, SkillRoot,
-        SlashCommand,
+        suggest_slash_commands, DefinitionSource, SkillOrigin, SkillRoot, SlashCommand,
     };
     use plugins::{PluginKind, PluginManager, PluginManagerConfig, PluginMetadata, PluginSummary};
     use runtime::{CompactionConfig, ContentBlock, ConversationMessage, MessageRole, Session};
-    use std::env;
     use std::fs;
     use std::path::{Path, PathBuf};
     use std::process::Command;
@@ -1818,6 +1815,7 @@ mod tests {
         std::env::temp_dir().join(format!("commands-plugin-{label}-{nanos}"))
     }
 
+    #[allow(dead_code)]
     fn env_lock() -> std::sync::MutexGuard<'static, ()> {
         static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
         LOCK.get_or_init(|| Mutex::new(()))
@@ -1876,6 +1874,7 @@ mod tests {
         root
     }
 
+    #[allow(dead_code)]
     fn init_bare_repo(label: &str) -> PathBuf {
         let root = temp_dir(label);
         let output = Command::new("git")

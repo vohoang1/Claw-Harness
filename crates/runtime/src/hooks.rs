@@ -102,6 +102,7 @@ impl HookRunner {
         )
     }
 
+    #[allow(clippy::unused_self)]
     fn run_commands(
         &self,
         event: HookEvent,
@@ -238,7 +239,7 @@ fn format_hook_warning(command: &str, code: i32, stdout: Option<&str>, stderr: &
 
 fn shell_command(command: &str) -> CommandWithStdin {
     #[cfg(windows)]
-    let mut command_builder = {
+    let command_builder = {
         let mut command_builder = Command::new("cmd");
         command_builder.arg("/C").arg(command);
         CommandWithStdin::new(command_builder)

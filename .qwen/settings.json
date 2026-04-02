@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcopy *)",
+      "Bash(rmdir *)",
+      "Bash(move *)",
+      "Bash(mkdir *)",
+      "Bash(cargo check *)",
+      "Bash(cargo build *)",
+      "Bash(.\\target\\release\\claw *)",
+      "Bash(cargo test *)",
+      "Bash(select-object *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
+    ]
+  },
+  "$version": 3
+}

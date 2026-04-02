@@ -297,6 +297,7 @@ impl OpenAiSseParser {
 }
 
 #[derive(Debug)]
+#[allow(clippy::struct_excessive_bools)]
 struct StreamState {
     model: String,
     message_started: bool,
@@ -497,6 +498,7 @@ impl ToolCallState {
         self.openai_index + 1
     }
 
+    #[allow(clippy::unnecessary_wraps)]
     fn start_event(&self) -> Result<Option<ContentBlockStartEvent>, ApiError> {
         let Some(name) = self.name.clone() else {
             return Ok(None);

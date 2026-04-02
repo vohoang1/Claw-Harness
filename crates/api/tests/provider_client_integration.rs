@@ -1,5 +1,5 @@
 use std::ffi::OsString;
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Mutex, OnceLock, PoisonError};
 
 use api::{read_xai_base_url, ApiError, AuthSource, ProviderClient, ProviderKind};
 
@@ -57,7 +57,7 @@ fn env_lock() -> std::sync::MutexGuard<'static, ()> {
     static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
     LOCK.get_or_init(|| Mutex::new(()))
         .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .unwrap_or_else(PoisonError::into_inner)
 }
 
 struct EnvVarGuard {

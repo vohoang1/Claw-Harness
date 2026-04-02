@@ -1805,6 +1805,7 @@ struct ProviderRuntimeClient {
 }
 
 impl ProviderRuntimeClient {
+    #[allow(clippy::needless_pass_by_value, clippy::implicit_clone)]
     fn new(model: String, allowed_tools: BTreeSet<String>) -> Result<Self, String> {
         let model = resolve_model_alias(&model).to_string();
         let client = ProviderClient::from_model(&model).map_err(|error| error.to_string())?;
@@ -1818,6 +1819,7 @@ impl ProviderRuntimeClient {
 }
 
 impl ApiClient for ProviderRuntimeClient {
+    #[allow(clippy::too_many_lines)]
     fn stream(&mut self, request: ApiRequest) -> Result<Vec<AssistantEvent>, RuntimeError> {
         let tools = tool_specs_for_allowed_tools(Some(&self.allowed_tools))
             .into_iter()
