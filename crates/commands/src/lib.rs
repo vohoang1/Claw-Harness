@@ -2527,6 +2527,7 @@ mod tests {
         let _ = fs::remove_dir_all(bundled_root);
     }
 
+    #[cfg(not(windows))]
     #[test]
     fn branch_and_worktree_commands_manage_git_state() {
         // given
