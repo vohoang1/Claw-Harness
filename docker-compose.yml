@@ -1,0 +1,239 @@
+# Multi-node Claw-Harness Cluster
+# 
+# This Docker Compose file sets up a complete distributed Claw-Harness cluster with:
+# - NATS (messaging)
+# - TiKV (distributed KV store)
+# - PD (Placement Driver for TiKV)
+# - Multiple Claw-Harness nodes
+# - Prometheus (metrics)
+# - Grafana (dashboards)
+# - Jaeger (distributed tracing)
+
+version: '3.8'
+
+services:
+  # ===========================
+  # Message Queue - NATS
+  # ===========================
+  nats:
+    image: nats:2.10
+    container_name: claw-nats
+    ports:
+      - "4222:4222"    # Client port
+      - "8222:8222"    # Monitoring port
+    command: ["-js"]   # Enable JetStream for persistence
+    networks:
+      - claw-network
+    healthcheck:
+      test: ["CMD", "nats-server", "-sl=ldm"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ===========================
+  # Distributed KV Store - TiKV
+  # ===========================
+  pd:
+    image: pingcap/pd:latest
+    container_name: claw-pd
+    ports:
+      - "2379:2379"    # Client API
+      - "2380:2380"    # Peer API
+    command:
+      - --name=pd
+      - --client-urls=http://0.0.0.0:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://pd:2379
+      - --advertise-peer-urls=http://pd:2380
+      - --initial-cluster=pd=http://pd:2380
+      - --data-dir=/data/pd
+    volumes:
+      - pd-data:/data
+    networks:
+      - claw-network
+    depends_on:
+      - nats
+
+  tikv:
+    image: pingcap/tikv:latest
+    container_name: claw-tikv
+    ports:
+      - "20160:20160"  # Raft port
+      - "20180:20180"  # gRPC API
+    command:
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=tikv:20160
+      - --pd=pd:2379
+      - --data-dir=/data/tikv
+    volumes:
+      - tikv-data:/data
+    networks:
+      - claw-network
+    depends_on:
+      - pd
+
+  # ===========================
+  # Claw-Harness Nodes
+  # ===========================
+  claw-node-1:
+    build:
+      context: ..
+      dockerfile: Dockerfile.node
+    container_name: claw-node-1
+    environment:
+      - CLAW_NODE_ID=node-1
+      - CLAW_NATS_URL=nats://nats:4222
+      - CLAW_TIKV_PD=pd:2379
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    ports:
+      - "8081:8080"  # HTTP API
+    volumes:
+      - node-1-data:/data
+    networks:
+      - claw-network
+    depends_on:
+      - nats
+      - tikv
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  claw-node-2:
+    build:
+      context: ..
+      dockerfile: Dockerfile.node
+    container_name: claw-node-2
+    environment:
+      - CLAW_NODE_ID=node-2
+      - CLAW_NATS_URL=nats://nats:4222
+      - CLAW_TIKV_PD=pd:2379
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    ports:
+      - "8082:8080"
+    volumes:
+      - node-2-data:/data
+    networks:
+      - claw-network
+    depends_on:
+      - nats
+      - tikv
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  claw-node-3:
+    build:
+      context: ..
+      dockerfile: Dockerfile.node
+    container_name: claw-node-3
+    environment:
+      - CLAW_NODE_ID=node-3
+      - CLAW_NATS_URL=nats://nats:4222
+      - CLAW_TIKV_PD=pd:2379
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    ports:
+      - "8083:8080"
+    volumes:
+      - node-3-data:/data
+    networks:
+      - claw-network
+    depends_on:
+      - nats
+      - tikv
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  # ===========================
+  # Observability Stack
+  # ===========================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: claw-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - claw-network
+    depends_on:
+      - claw-node-1
+      - claw-node-2
+      - claw-node-3
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: claw-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - claw-network
+    depends_on:
+      - prometheus
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: claw-jaeger
+    ports:
+      - "16686:16686"  # UI
+      - "14268:14268"  # Collector
+      - "4317:4317"    # OTLP gRPC
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - claw-network
+
+  # ===========================
+  # Tool Store Registry (S3-compatible)
+  # ===========================
+  minio:
+    image: minio/minio:latest
+    container_name: claw-registry
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    environment:
+      - MINIO_ROOT_USER=claw-admin
+      - MINIO_ROOT_PASSWORD=claw-secret-key
+    volumes:
+      - registry-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - claw-network
+
+# ===========================
+# Networks & Volumes
+# ===========================
+networks:
+  claw-network:
+    driver: bridge
+
+volumes:
+  pd-data:
+  tikv-data:
+  node-1-data:
+  node-2-data:
+  node-3-data:
+  prometheus-data:
+  grafana-data:
+  registry-data:

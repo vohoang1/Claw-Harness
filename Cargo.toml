@@ -9,8 +9,46 @@ license = "MIT"
 publish = false
 
 [workspace.dependencies]
-lsp-types = "0.97"
+# Core async & serialization
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+async-trait = "0.1"
+
+# Distributed systems
+nats = { version = "0.24", features = ["async"] }
+tikv-client = "0.3"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# WASM Sandbox
+wasmtime = "13"
+wasmtime-wasi = "13"
+
+# Observability
+prometheus = "0.13"
+opentelemetry = { version = "0.21", features = ["rt-tokio"] }
+opentelemetry-otlp = "0.14"
+tracing = "0.1"
+tracing-opentelemetry = "0.22"
+lazy_static = "1"
+
+# API & Web
+axum = "0.8"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+
+# Utilities
+anyhow = "1"
+thiserror = "2"
+chrono = { version = "0.4", features = ["serde"] }
+once_cell = "1"
+glob = "0.3"
+walkdir = "2"
+regex = "1"
+
+# LSP
+lsp-types = "0.97"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
