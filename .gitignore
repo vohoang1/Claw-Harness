@@ -1,7 +1,41 @@
+# Rust build artifacts
+target/
+
+# Python artifacts
 __pycache__/
-archive/
+*.py[cod]
+*$py.class
+*.so
+.Python
+python/venv/
+python/.venv/
+python/*.egg-info/
+
+# OmX and Claw specific
 .omx/
 .clawd-agents/
-# Claude Code local artifacts
-.claude/settings.local.json
-.claude/sessions/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test artifacts
+*.gcno
+*.gcda
+coverage/
