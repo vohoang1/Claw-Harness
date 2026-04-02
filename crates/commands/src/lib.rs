@@ -1789,6 +1789,7 @@ pub fn handle_slash_command(
 
 #[cfg(test)]
 mod tests {
+    #[allow(unused_imports)]
     use super::{
         handle_branch_slash_command, handle_commit_slash_command, handle_plugins_slash_command,
         handle_slash_command, handle_worktree_slash_command, load_agents_from_roots,
