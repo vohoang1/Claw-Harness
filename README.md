@@ -3,9 +3,9 @@
 > **Enterprise-Grade Distributed AI Agent Orchestration Platform**
 
 <p align="center">
-  <a href="https://github.com/vohoang1/Claw-Harness/actions"><img src="https://img.shields.io/github/actions/workflow/status/vohoang1/Claw-Harness/ci.yml?branch=main&logo=github&style=for-the-badge" alt="CI Status"></a>
-  <a href="https://github.com/vohoang1/Claw-Harness/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
-  <a href="https://github.com/vohoang1/Claw-Harness/releases"><img src="https://img.shields.io/github/v/release/vohoang1/Claw-Harness?style=for-the-badge&logo=github" alt="Release"></a>
+  <a href="https://github.com/vohoang1/claw-harness/actions"><img src="https://img.shields.io/github/actions/workflow/status/vohoang1/claw-harness/ci.yml?branch=main&logo=github&style=for-the-badge" alt="CI Status"></a>
+  <a href="https://github.com/vohoang1/claw-harness/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
+  <a href="https://github.com/vohoang1/claw-harness/releases"><img src="https://img.shields.io/github/v/release/vohoang1/claw-harness?style=for-the-badge&logo=github" alt="Release"></a>
   <a href="https://discord.gg/claw-harness"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord" alt="Discord"></a>
 </p>
 
@@ -55,8 +55,8 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/vohoang1/Claw-Harness.git
-cd Claw-Harness
+git clone https://github.com/vohoang1/claw-harness.git
+cd claw-harness
 
 # Build release
 cargo build --release
@@ -142,8 +142,8 @@ python -c "from claw_harness import run; print(run('Hello!'))"
 ### Method 1: From Source (Recommended)
 
 ```bash
-git clone https://github.com/vohoang1/Claw-Harness.git
-cd Claw-Harness
+git clone https://github.com/vohoang1/claw-harness.git
+cd claw-harness
 cargo build --release
 
 # Verify installation
@@ -394,8 +394,8 @@ We welcome contributions! Here's how to help:
 ### 1. Fork & Clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Claw-Harness.git
-cd Claw-Harness
+git clone https://github.com/YOUR_USERNAME/claw-harness.git
+cd claw-harness
 ```
 
 ### 2. Setup Development Environment
@@ -455,8 +455,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full guide.
 
 Thanks to all contributors! 🙏
 
-<a href="https://github.com/vohoang1/Claw-Harness/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=vohoang1/Claw-Harness" />
+<a href="https://github.com/vohoang1/claw-harness/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=vohoang1/claw-harness" />
 </a>
 
 ---
